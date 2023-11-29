@@ -1,4 +1,4 @@
-﻿using AimmyWPF.Class;
+using AimmyWPF.Class;
 using AimmyWPF.UserController;
 using System;
 using System.Collections.Generic;
@@ -39,7 +39,9 @@ namespace AimmyWPF
         private const uint MOUSEEVENTF_LEFTUP = 0x0004;
         private const uint MOUSEEVENTF_MOVE = 0x0001; // Movement flag
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
         private static int ScreenWidth = Screen.PrimaryScreen.Bounds.Width;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         private static int ScreenHeight = Screen.PrimaryScreen.Bounds.Height;
 
         private AIModel _onnxModel;
@@ -94,7 +96,15 @@ namespace AimmyWPF
             public int Right;
             public int Bottom;
         }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public MainWindow()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             InitializeComponent();
 
@@ -228,18 +238,36 @@ namespace AimmyWPF
             return;
         }
 
+        private double Lerper(double a, double b, double t)
+        {
+            // Simple linear interpolation function.
+            return a + (b - a) * t;
+        }
+
         private void MoveCrosshair(int detectedX, int detectedY)
         {
-            double Alpha = aimmySettings["Mouse_Sens"];
+            // Alpha controls the sensitivity and smoothness of the movement.
+            // Lower values will result in smoother but slower movements.
+            double Alpha = aimmySettings["Mouse_Sens"]; // Ensure this value is set appropriately.
 
+            // Screen center coordinates.
             int halfScreenWidth = ScreenWidth / 2;
             int halfScreenHeight = ScreenHeight / 2;
 
-            int moveX = (int)Lerp(0, detectedX - halfScreenWidth, 1 - Alpha);
-            int moveY = (int)Lerp(0, detectedY - halfScreenHeight, 1 - Alpha);
+            // Calculate the difference between the detected position and screen center.
+            int deltaX = detectedX - halfScreenWidth;
+            int deltaY = detectedY - halfScreenHeight;
 
+            // Apply linear interpolation to smooth out the movement.
+            // Lerp function should smoothly interpolate between the start and end values based on Alpha.
+            int moveX = (int)Lerper(0, deltaX, Alpha);
+            int moveY = (int)Lerper(0, deltaY, Alpha);
+
+            // Use mouse_event to move the cursor.
+            // MOUSEEVENTF_MOVE indicates that we are moving the mouse to a new position.
             mouse_event(MOUSEEVENTF_MOVE, (uint)moveX, (uint)moveY, 0, 0);
 
+            // Optionally perform a click action if the TriggerBot feature is enabled.
             if (toggleState["TriggerBot"])
             {
                 Task.Run(() => DoTriggerClick());
@@ -281,7 +309,9 @@ namespace AimmyWPF
             }
             else
             {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 Task.Run(() => DoTriggerClick());
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
 
@@ -310,7 +340,9 @@ namespace AimmyWPF
             if (cts != null)
             {
                 cts.Cancel();
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
                 cts = null;
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
             }
         }
         #endregion
@@ -372,13 +404,19 @@ namespace AimmyWPF
 
         #region Menu Controls
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         private async void Selection_Click(object sender, RoutedEventArgs e)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             if (sender is System.Windows.Controls.Button clickedButton)
             {
+#pragma warning disable CS8604 // Possible null reference argument.
                 MenuPosition position = (MenuPosition)Enum.Parse(typeof(MenuPosition), clickedButton.Tag.ToString());
+#pragma warning restore CS8604 // Possible null reference argument.
                 ResetMenuColors();
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 clickedButton.Foreground = (System.Windows.Media.Brush)brushcolor.ConvertFromString("#3e8fb0");
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 ApplyMenuAnimations(position);
                 UpdateMenuVisibility(position);
             }
@@ -386,8 +424,10 @@ namespace AimmyWPF
 
         private void ResetMenuColors()
         {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
             Selection1.Foreground = Selection2.Foreground = Selection3.Foreground = Selection4.Foreground =
                 (System.Windows.Media.Brush)brushcolor.ConvertFromString("#ffffff");
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
 
         private void ApplyMenuAnimations(MenuPosition position)
@@ -624,8 +664,12 @@ namespace AimmyWPF
         {
             if (SelectorListBox.SelectedItem != null)
             {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 string modelFileName = SelectorListBox.SelectedItem.ToString();
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8604 // Possible null reference argument.
                 string modelPath = Path.Combine("bin/models", modelFileName);
+#pragma warning restore CS8604 // Possible null reference argument.
 
                 _onnxModel?.Dispose();
 
@@ -654,7 +698,9 @@ namespace AimmyWPF
                 if (!SelectorListBox.Items.Contains(lastLoadedModel) && lastLoadedModel != "N/A")
                 {
                     SelectorListBox.SelectedIndex = 0;
+#pragma warning disable CS8601 // Possible null reference assignment.
                     lastLoadedModel = SelectorListBox.Items[0].ToString();
+#pragma warning restore CS8601 // Possible null reference assignment.
                 }
                 else
                 {
@@ -673,11 +719,15 @@ namespace AimmyWPF
         {
             if (ConfigSelectorListBox.SelectedItem != null && lastLoadedModel != "N/A")
             {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 dynamic AimmyJSON = JsonConvert.DeserializeObject(File.ReadAllText(path));
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 System.Windows.MessageBox.Show("The creator of this model suggests you use this model:" +
                     "\n" +
                     AimmyJSON.Suggested_Model, "Suggested Model - Aimmy");
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
                 aimmySettings["FOV_Size"] = (int)AimmyJSON.FOV_Size;
                 FOVOverlay.FovSize = (int)aimmySettings["FOV_Size"];
@@ -691,7 +741,9 @@ namespace AimmyWPF
                 aimmySettings["AI_Min_Conf"] = AimmyJSON.AI_Minimum_Confidence;
                 _onnxModel.ConfidenceThreshold = (float)(aimmySettings["AI_Min_Conf"] / 100.0f);
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                 lastLoadedConfig = ConfigSelectorListBox.SelectedItem.ToString();
+#pragma warning restore CS8601 // Possible null reference assignment.
 
                 // Reload the UI
                 ReloadMenu();
@@ -749,7 +801,9 @@ namespace AimmyWPF
                 if (!ConfigSelectorListBox.Items.Contains(lastLoadedConfig) && lastLoadedConfig != "N/A")
                 {
                     ConfigSelectorListBox.SelectedIndex = 0;
+#pragma warning disable CS8601 // Possible null reference assignment.
                     lastLoadedConfig = ConfigSelectorListBox.Items[0].ToString();
+#pragma warning restore CS8601 // Possible null reference assignment.
                 }
                 else
                 {
